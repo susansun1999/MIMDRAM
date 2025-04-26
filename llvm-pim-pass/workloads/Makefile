@@ -7,13 +7,14 @@ BINS := $(SRCS:src/%.c=%)
 
 all: ${BINS}
 
-%: src/%.c ../cmake-build-debug/src/libPIMVectorizationPass.so
+%: src/%.c #../cmake-build-debug/src/libPIMVectorizationPass.so
 	# Compile the program with the forced vector width
 	${CLANG} -emit-llvm -g -O3 -fno-unroll-loops -mllvm -force-vector-width=${WIDTH} -I../include -o "debug/$@.bc" -c "$<"
 	${DIS} "debug/$@.bc" -o "debug/$@.ll"
 
 	# Run the pass
-	${OPT} -load ../cmake-build-debug/src/libPIMVectorizationPass.so -pim < "debug/$@.bc" > "debug/$@.pim.bc"
+	#${OPT} -load ../cmake-build-debug/src/libPIMVectorizationPass.so -pim < "debug/$@.bc" > "debug/$@.pim.bc"
+	${OPT} -disable-output "debug/$@.bc" -passes=pim > "debug/$@.pim.bc"
 
 	# Compile the result of the pass
 	${DIS} "debug/$@.pim.bc" -o "debug/$@.pim.ll"
